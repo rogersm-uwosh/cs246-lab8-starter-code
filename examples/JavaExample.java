@@ -15,21 +15,21 @@ public class JavaExample {
      */
     public static List<Map<String, String>> readStudentsCSV(String filename) throws IOException {
         List<Map<String, String>> students = new ArrayList<>();
-        BufferedReader br = new BufferedReader(new FileReader(filename));
         
-        String headerLine = br.readLine();
-        String[] headers = headerLine.split(",");
-        
-        String line;
-        while ((line = br.readLine()) != null) {
-            String[] values = line.split(",");
-            Map<String, String> student = new HashMap<>();
-            for (int i = 0; i < headers.length; i++) {
-                student.put(headers[i], values[i]);
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+            String headerLine = br.readLine();
+            String[] headers = headerLine.split(",");
+            
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(",");
+                Map<String, String> student = new HashMap<>();
+                for (int i = 0; i < headers.length && i < values.length; i++) {
+                    student.put(headers[i], values[i]);
+                }
+                students.add(student);
             }
-            students.add(student);
         }
-        br.close();
         return students;
     }
     
@@ -38,28 +38,29 @@ public class JavaExample {
      */
     public static JSONObject readCoursesJSON(String filename) throws Exception {
         JSONParser parser = new JSONParser();
-        FileReader reader = new FileReader(filename);
-        JSONObject jsonObject = (JSONObject) parser.parse(reader);
-        reader.close();
-        return jsonObject;
+        try (FileReader reader = new FileReader(filename)) {
+            JSONObject jsonObject = (JSONObject) parser.parse(reader);
+            return jsonObject;
+        }
     }
     
     /**
      * Read and analyze text file
      */
     public static Map<String, Integer> analyzeTextFile(String filename) throws IOException {
-        BufferedReader br = new BufferedReader(new FileReader(filename));
         StringBuilder content = new StringBuilder();
-        String line;
         int lineCount = 0;
         
-        while ((line = br.readLine()) != null) {
-            content.append(line).append("\n");
-            lineCount++;
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                content.append(line).append("\n");
+                lineCount++;
+            }
         }
-        br.close();
         
-        String[] words = content.toString().split("\\s+");
+        String text = content.toString().trim();
+        String[] words = text.isEmpty() ? new String[0] : text.split("\\s+");
         
         Map<String, Integer> stats = new HashMap<>();
         stats.put("lines", lineCount);

@@ -46,7 +46,8 @@ def read_text_file(filename):
     with open(filename, 'r') as file:
         content = file.read()
     
-    lines = content.split('\n')
+    # Count non-empty lines
+    lines = [line for line in content.split('\n') if line.strip()]
     words = content.split()
     
     return {
